@@ -338,3 +338,11 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+/NetworksAssignment1/server
+/NetworksAssignment1/client/example.txt
+/NetworksAssignment1/client/example2.txt
+/NetworksAssignment1/client/example3.txt
+/NetworksAssignment1/client/image1.jpg
+/NetworksAssignment1/client/image2.jpg
+/NetworksAssignment1/client
+/NetworksAssignment1/example.txt

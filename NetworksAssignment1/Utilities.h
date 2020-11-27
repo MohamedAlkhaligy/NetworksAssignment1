@@ -9,6 +9,10 @@
 #include <iterator>
 #include <direct.h>
 #include <WS2tcpip.h>
+#include <time.h>
+
+#include <chrono>
+#include <thread>
 
 static const char* DEFAULT_SERVER_HOSTNAME = "localhost";
 static const char* DEFAULT_SERVER_PORT = "80";
@@ -27,13 +31,10 @@ static const std::string OKAY = "200 OK";
 class Utilities
 {
 
-
 public:
 	static std::vector<std::string> split(std::string s);
 
-	static std::string receiveMessage(SOCKET socket, char* buffer);
-
-	static std::vector<std::string> separateMessage(std::string message, std::string separator);
+	static std::vector<std::string> separateMessage(std::string message, const std::string separator);
 
 	static std::vector<std::vector<std::string>> format(std::string request);
 

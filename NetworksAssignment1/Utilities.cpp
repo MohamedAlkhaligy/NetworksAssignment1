@@ -8,32 +8,12 @@ std::vector<std::string> Utilities::split(std::string s) {
     return tokens;
 }
 
-std::string Utilities::receiveMessage(SOCKET socket, char* buffer) {
-	// Receive request
-	int numBytesRcvd = 1;
-	std::ostringstream oss;
-	std::string request, partial_data;
-	while (numBytesRcvd > 0) {
-		numBytesRcvd = recv(socket, buffer, MAX_BUFFER - 1, 0);
-		oss << std::string(buffer, numBytesRcvd);
-
-		if (numBytesRcvd < 0)
-			std::cout << "Server: Receiving failed" << std::endl;
-
-		std::size_t found = oss.str().rfind(SEPARATOR);
-		if (found != std::string::npos) {
-			break;
-		}
-	}
-	return oss.str();
-}
-
-std::vector<std::string> Utilities::separateMessage(std::string message, std::string separator) {
+std::vector<std::string> Utilities::separateMessage(std::string message, const std::string separator) {
 
 	std::string request, partial_data;
-	std::size_t found = message.rfind(SEPARATOR);
+	std::size_t found = message.rfind(separator);
 	if (found != std::string::npos) {
-		int separator_index = found + SEPARATOR.size();
+		int separator_index = found + separator.size();
 		request = std::string(&message[0], &message[separator_index]);
 		partial_data = std::string(&message[separator_index], &message[message.size()]);
 	} else {

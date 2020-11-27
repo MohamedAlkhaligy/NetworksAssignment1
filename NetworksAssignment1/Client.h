@@ -16,6 +16,7 @@ class Client
 private:
 	const char* serverHostname;
 	const char* serverPort;
+	bool isConnectionClosed;
 	char buffer[MAX_BUFFER];
 	SOCKET socketToServer;
 	std::string file_path;
@@ -25,7 +26,7 @@ private:
 public: 
 	Client(const char* serverHostname = DEFAULT_SERVER_HOSTNAME, const char* serverPort = DEFAULT_SERVER_PORT,
 		std::string file_path = DEFAULT_PATH):
-		serverHostname(serverHostname), serverPort(serverPort), file_path(file_path) { }
+		serverHostname(serverHostname), serverPort(serverPort), file_path(file_path), isConnectionClosed(false) { }
 
 	int init();
 

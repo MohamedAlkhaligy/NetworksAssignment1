@@ -35,7 +35,7 @@ int Client::init() {
 	if (socketToServer == INVALID_SOCKET) {
 		std::cerr << "Can't create socket, ERROR#" << WSAGetLastError() << std::endl;
 		WSACleanup();
-		return WSAGetLastError();
+		return SOCKET_ERROR;
 	}
 
 	// Connect to the server
@@ -44,17 +44,42 @@ int Client::init() {
 		std::cerr << "Can't connect to server, ERROR#" << WSAGetLastError() << std::endl;
 		closesocket(socketToServer);
 		WSACleanup();
-		return WSAGetLastError();
+		return SOCKET_ERROR;
 	}
 
 	return 0;
+}
+
+std::string receiveMessage(SOCKET socket, char* buffer) {
+	// Receive request
+	int numBytesRcvd = 1;
+	std::ostringstream oss;
+	std::string request, partial_data;
+	while (numBytesRcvd > 0) {
+		numBytesRcvd = recv(socket, buffer, MAX_BUFFER - 1, 0);
+
+		if (numBytesRcvd < 0) {
+			std::cout << "Server: Receiving failed" << std::endl;
+			return "";
+		} else if (numBytesRcvd == 0) {
+			std::cerr << "Client: Connection Closed" << std::endl;
+			return "";
+		}
+
+		oss << std::string(buffer, numBytesRcvd);
+		std::size_t found = oss.str().rfind(SEPARATOR);
+		if (found != std::string::npos) {
+			break;
+		}
+	}
+	return oss.str();
 }
 
 void Client::handleGETRequest(std::string path, std::string hostname, const char* port) {
 	try {
 		std::string clientpath = CLIENT + Utilities::getFileName(path);
 
-		// creating the get request
+		// Creating the get request
 		std::ostringstream request;
 		request << "GET " << path << " HTTP/1.1\r\n";
 		request << "Host: " << hostname << "\r\n";
@@ -64,7 +89,15 @@ void Client::handleGETRequest(std::string path, std::string hostname, const char
 		Utilities::sendRequest(socketToServer, request.str());
 		
 		// Receiving the file specified in the get request path
-		std::string response = Utilities::receiveMessage(socketToServer, buffer);
+		std::string response = receiveMessage(socketToServer, buffer);
+
+		// Test connection timeout
+		std::this_thread::sleep_for(std::chrono::seconds(30));
+		
+		if (response.empty()) {
+			return;
+		}
+
 		std::vector<std::string> separatedMessage = Utilities::separateMessage(response, SEPARATOR);
 		std::cout << separatedMessage[0];
 
@@ -86,6 +119,11 @@ void Client::handleGETRequest(std::string path, std::string hostname, const char
 
 				if (numBytesRcvd < 0) {
 					std::cerr << "Client: Receiving file has failed" << std::endl;
+					isConnectionClosed = true;
+					return;
+				} else if (numBytesRcvd == 0) {
+					std::cerr << "Client: Connection Closed" << std::endl;
+					isConnectionClosed = true;
 					return;
 				} else if (currentFileSize == expectedFileSize) {
 					fwrite(buffer, numBytesRcvd, 1, file);
@@ -124,7 +162,7 @@ void Client::handlePOSTRequest(std::string path, std::string hostname, const cha
 		Utilities::sendRequest(socketToServer, request.str());
 
 		// Receive a confirm from the server
-		std::string response = Utilities::receiveMessage(socketToServer, buffer);
+		std::string response = receiveMessage(socketToServer, buffer);
 		std::vector<std::string> separatedMessage = Utilities::separateMessage(response, SEPARATOR);
 		std::cout << separatedMessage[0];
 
@@ -216,10 +254,11 @@ int Client::run() {
 	try {
 		std::ifstream commandsFile(file_path);
 		std::string command;
-		while (getline(commandsFile, command)) {
+		while (getline(commandsFile, command) && !isConnectionClosed) {
 			if (!command.empty() && command[0] != IGNORE)
 				executeCommand(command);
 		}
+		closesocket(socketToServer);
 	} catch(const std::ifstream::failure& e) {
 		std::cout << e.what() << std::endl;
 	}
