@@ -56,10 +56,10 @@ std::string receiveMessage(SOCKET socket, char* buffer) {
 	std::ostringstream oss;
 	std::string request, partial_data;
 	while (numBytesRcvd > 0) {
-		numBytesRcvd = recv(socket, buffer, MAX_BUFFER - 1, 0);
+		numBytesRcvd = recv(socket, buffer, MAX_BUFFER, 0);
 
 		if (numBytesRcvd < 0) {
-			std::cout << "Server: Receiving failed" << std::endl;
+			std::cout << "Client: Receiving failed" << std::endl;
 			return "";
 		} else if (numBytesRcvd == 0) {
 			std::cerr << "Client: Connection Closed" << std::endl;
@@ -92,7 +92,7 @@ void Client::handleGETRequest(std::string path, std::string hostname, const char
 		std::string response = receiveMessage(socketToServer, buffer);
 
 		// Test connection timeout
-		std::this_thread::sleep_for(std::chrono::seconds(30));
+		// std::this_thread::sleep_for(std::chrono::seconds(30));
 		
 		if (response.empty()) {
 			return;

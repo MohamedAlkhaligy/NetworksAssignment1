@@ -1,8 +1,8 @@
-client_get video.mkv localhost
-client_get example.txt localhost 80
-client_get example3.txt localhost 80
+#client_get video.mkv localhost 80
+client_post image2.jpg localhost 80
+client_get example2.txt localhost 80
+client_post alice.txt localhost
+client_post fairy.jpg localhost
+client_post knife.jpg localhost 80
 client_get image1.jpg localhost
-client_post image2.jpg localhost
-client_post image1.jpg localhost
-
-
+client_get notfound.jpg localhost

@@ -7,8 +7,10 @@
 
 #pragma comment (lib, "ws2_32.lib")
 
-static const double RATIO = 1.5;
-static const double TIMEOUT = 15;
+static const double RATIO = 1.25;
+
+// The delay when one socket is connected
+static const double TIMEOUT = 10;
 
 class Server
 {
@@ -26,6 +28,7 @@ public:
 	Server(const char* port = DEFAULT_SERVER_PORT, const char* hostname = DEFAULT_SERVER_HOSTNAME):
 		hostname(hostname), port(port) { 
 		timeout = TIMEOUT * RATIO;
+		std::cout << "Server Timeout: " << timeout << std::endl;
 	}
 
 	int init();

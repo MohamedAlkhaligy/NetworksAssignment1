@@ -59,6 +59,7 @@ void Server::watchConnections() {
 				(*it)->stop();
 				it = clients.erase(it);
 				timeout *= RATIO;
+				std::cout << "Server Timeout: " << timeout << std::endl;
 			} else if ((*it)->closed) {
 				it = clients.erase(it);
 				timeout *= RATIO;
@@ -78,6 +79,7 @@ int Server::run() {
 		ClientsHandler* client = new ClientsHandler(clientSocket);
 		clients.push_back(client);
 		timeout /= RATIO;
+		std::cout << "Server Timeout: " << timeout << std::endl;
 	}
 }
 
